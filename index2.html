@@ -1,0 +1,530 @@
+<!doctype html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>斗地主</title>
+    <style type="text/css">
+        .pView{
+            height: 20px;
+            line-height: 30px;
+            padding: 0;
+            margin: 0;
+        }
+        .cardView{
+            font-size: 18px;
+            border-right: 1px solid red;
+            border-bottom: 1px solid red;
+            height: 200px;
+             width: 30px; 
+             float: left;
+             text-align:center;
+             line-height: 30px;
+        }
+        .white{
+            height: 100px;
+             width: 20px;
+             float: left;
+             border: 1px solid red;
+        }
+        .but{
+            height: 150px;
+             width: 100px;
+             float: left;
+             border: 1px solid red;
+             margin: 15px;
+        }
+
+        .paimian{
+                    height: 150px;
+                     width: 100px;
+                     float: left;
+                     border: 1px solid red;
+                }
+
+
+        .pink{
+            background-color: pink
+        }
+    </style>
+    <script type="text/javascript" src="js/jquery-1.4.3.min.js"></script>
+</head>
+
+</head>
+
+<body>
+    <div style="height: 200px; border: 1px solid red;" id="paimian"> 
+     
+    </div>
+    <div style="height: 200px; border: 1px solid red;" id="guize">
+        <button class="but" id="button_1">单张</button>
+        <button class="but" id="button_2">对子</button>
+        <button class="but" id="button_3">顺子</button>
+        <button class="but" id="button_4">连队</button>
+        <button class="but" id="button_5">炸弹</button>
+        <button class="but" id="button_6">三带一</button>
+        <button class="but" id="button_7">三带一对</button>
+        <button class="but" id="button_8">四带二</button>
+        <button class="but" id="button_9">四带两队</button>
+        <button class="but" id="button_10">三张不带</button>
+       
+    </div>
+    <div style="height: 200px; border: 1px solid #12e09d;" id="yixuan">
+       
+    </div>
+    <div style="height: 200px; border: 1px solid #12e09d;" id="shengyu">
+       
+    </div>
+
+    <div id="errorHtml" style="position: absolute;top: 50%;left: 50%;;border: 1px solid #12e09d; width: 300px;height: 300px;transform: translate(-50%,-50%);background-color: #fff;display: flex;justify-content: center;align-items: center;font-size: 30px;display: none;">
+        出牌规则
+    </div>
+
+</body>
+</html>
+
+
+
+<script type="text/javascript">
+    
+    var suodianshu = new Array();//所有点数
+     var shunzi = new Array();//顺子选牌
+    // var paimina = "W2AKQJO9876543";//排面
+    var paimina = new Array('2','A','K','Q','J','10','9','8','7','6','5','4','3');
+    var suoyoupaimian = new Array();
+    var huase = new Array('黑桃','红桃','梅花','方片' );
+    var paimianda = {id:0,name:'大王',num:17};
+    var paimianxiao = {id:1,name:'小王',num:16};
+    suoyoupaimian.push(paimianda);
+    suoyoupaimian.push(paimianxiao);
+    var conunt = 2;
+    var nums = 15;
+     for(var i=0;i<paimina.length;i++){
+        for(var j=0;j<huase.length;j++){
+            var paimiangs = {id:conunt++,name:huase[j]+paimina[i],num:nums};
+            suoyoupaimian.push(paimiangs);
+        }
+        nums--;
+     }
+     console.log(suoyoupaimian);
+
+    var chupaiguize = 0; //出牌规则
+    var szxp = new Array();//顺子选牌前后两个节点值
+    $(function(){
+        fapai();
+        paimian();
+     //规则点击事件
+      $('.but').click(function(){
+            $(".but").removeClass('pink');
+            $(this).addClass("pink");
+            var id = $(this).attr('id');
+            chupaiguize = id.split('_')[1];
+            console.log(chupaiguize)
+        });
+
+    });
+
+
+    //所有发牌的方法
+    function fapai(){
+            var html = "";
+            for(var i=0;i<suoyoupaimian.length;i++){
+                 html +='<div class="white num'+suoyoupaimian[i].num+'" data_num ="'+suoyoupaimian[i].num+'" id="'+suoyoupaimian[i].id+'" >'+suoyoupaimian[i].name+ '</div></div>';
+            }
+
+             $("#shengyu").append(html);
+             
+             
+             
+             console.log('所有牌面:'+suodianshu);
+    }
+
+    //牌面发牌的方法
+    function paimian(){
+            var html = "";
+            var dawangshengyu = $(".num"+17).length;
+            var xiaowangshengyu = $(".num"+16).length;
+            
+             html +='<div id="paimian_17"  class="paimian">大王  <br> 剩余 '+dawangshengyu+'张 </div>';
+             html +='<div id="paimian_16"  class="paimian">小王<br> 剩余 '+xiaowangshengyu+'张</div>';
+             nums = 15
+            for(var i=0;i<paimina.length;i++){
+                var pai = paimina[i];
+                var num = nums--;
+                var shengyu = $(".num"+num).length;
+                var pink = shengyu==0?'pink':'' ;
+             html +='<div id="paimian_'+num+'" class="paimian '+pink+' ">红桃'+pai+' <br> 剩余 '+shengyu+'张 </div></div>';
+            }
+             $("#paimian").append(html);
+             
+             
+      //牌面点击事件
+      $('.paimian').click(function(){
+            var cls = $(this).attr('id').split('_')[1];
+            console.log(cls)
+            if (chupaiguize==0) {
+                
+                tishi('请先选择出牌规则');
+            }
+            if (chupaiguize==1) {//单张出牌规则
+                  removePaimian(cls,1)//删除排面的方法
+                  shunzi.splice(0,shunzi.length);
+                  
+            }
+            if (chupaiguize==2) {//对子出牌规则
+                removePaimian(cls,2)//删除排面的方法
+                shunzi.splice(0,shunzi.length);
+                
+            }
+            if (chupaiguize==3) {//顺子出牌规则
+               if(cls>14){
+                    tishi('出牌规则有误');
+               }else{
+               
+                shunzi.push(parseInt(cls));
+                console.log("连队已选："+shunzi);
+                if (shunzi.length==2) {
+                    var shunzi1 = shunzi[0];
+                    var shunzi2 = shunzi[1];
+                    if(shunzi[0]<shunzi[1]){
+                        var tema = shunzi[0];
+                        shunzi[0]=shunzi[1];
+                        shunzi[1] = tema;
+                        var falg = removeshunzi(shunzi);
+                        console.log("选择的是否顺子"+falg);
+                        if (falg) {
+                            var ids = new Array();
+                            for(var i = shunzi[0]; i >= shunzi[1]; i--){
+                                var id = $(".num"+i).eq(0).attr('id');
+                                ids.push(id);
+                            }
+                            
+                            removeId(ids);
+                            yixuan(ids);
+                            shunzi.splice(0,shunzi.length);
+                        }else{
+                             shunzi.splice(0,shunzi.length);
+                            tishi('你选择的不是顺子!');
+                        }
+                    }else{
+                        var falg = removeshunzi(shunzi);
+                        console.log("选择的是否顺子"+falg);
+                        if (falg) {
+                            var ids = new Array();
+                            for(var i = shunzi[0]; i >= shunzi[1]; i--){
+                                var id = $(".num"+i).eq(0).attr('id');
+                                ids.push(id);
+                            }
+                            removeId(ids);
+                            yixuan(ids);
+                            shunzi.splice(0,shunzi.length);
+                        }else{
+                             shunzi.splice(0,shunzi.length);
+                            tishi('你选择的不是顺子!');
+                        }
+                    }
+                  }else if(shunzi.length<2){
+                            tishi('请在选择一张!');
+                  }else if(shunzi.length>2){
+                            shunzi.splice(0,2);
+                  }
+                } 
+            }
+            if (chupaiguize==4) {//连队出牌规则
+                if(cls>14){
+                    tishi('出牌规则有误');
+               }else{
+               
+                shunzi.push(parseInt(cls));
+                console.log("顺子已选："+shunzi);
+                if (shunzi.length==2) {
+                    var shunzi1 = shunzi[0];
+                    var shunzi2 = shunzi[1];
+                    if(shunzi[0]<shunzi[1]){
+                        var tema = shunzi[0];
+                        shunzi[0]=shunzi[1];
+                        shunzi[1] = tema;
+                        var falg = lianduiGuize(shunzi);
+                        console.log("选择的是否连队"+falg);
+                        if (falg) {
+                            var ids = new Array();
+                            for(var i = shunzi[0]; i >= shunzi[1]; i--){
+                                var id = $(".num"+i).eq(0).attr('id');
+                                var id1 = $(".num"+i).eq(1).attr('id');
+                                ids.push(id1);
+                                ids.push(id);
+                            }
+                            
+                            removeId(ids);
+                            yixuan(ids);
+                            shunzi.splice(0,shunzi.length);
+                        }else{
+                             shunzi.splice(0,shunzi.length);
+                            tishi('你选择的不是连队1!');
+                        }
+                    }else{
+                        var falg = lianduiGuize(shunzi);
+                        console.log("选择的是否连队"+falg);
+                        if (falg) {
+                            var ids = new Array();
+                            for(var i = shunzi[0]; i >= shunzi[1]; i--){
+                                var id = $(".num"+i).eq(0).attr('id');
+                                var id1 = $(".num"+i).eq(1).attr('id');
+                                ids.push(id1);
+                                ids.push(id);
+                            }
+                            
+                            removeId(ids);
+                            yixuan(ids);
+                            shunzi.splice(0,shunzi.length);
+                        }else{
+                             shunzi.splice(0,shunzi.length);
+                            tishi('你选择的不是连队2!');
+                        }
+                    }
+                  }else if(shunzi.length<2){
+                            tishi('请在选择一张!');
+                  }else if(shunzi.length>2){
+                            shunzi.splice(0,2);
+                  }
+                } 
+            }
+            if (chupaiguize==5) {//炸弹出牌规则
+            	if(cls>15){
+            		var dawang = $(".num16").length;
+            		var xiaowang = $(".num17").length;
+								if(dawang==1&&xiaowang==1){
+										removePaimian(16,1)
+										removePaimian(17,1)
+										shunzi.splice(0,shunzi.length);
+								}else{
+									tishi('你选择的不是炸弹');
+								}
+
+            	}else{
+            		var sum = $(".num"+cls).length;
+            		if(sum==4){
+            			removePaimian(cls,4)
+            			shunzi.splice(0,shunzi.length);
+            		}else{
+            			tishi('你选择的不是炸弹');
+            		}
+            	}
+            	
+            }
+            if (chupaiguize==6) {//三带一出牌规则
+            	 shunzi.push(parseInt(cls));
+            	 if (shunzi.length==2) {
+            	  var sanzhang = $(".num"+shunzi[0]).length;
+            		var danzhang = $(".num"+shunzi[1]).length;
+            		 	if(sanzhang<3){
+		                tishi('你选择的'+shunzi[0]+"小于三张，请重新选择！");
+		                shunzi.splice(0,shunzi.length);
+            		 	}else if(danzhang<1){
+            		 		tishi('你选择的'+shunzi[1]+"已经出完，请重新选择！");
+//		                shunzi.splice(0,shunzi.length);
+		                shunzi.slice(0);
+ 										shunzi.splice(shunzi.length-1,1);
+										console.log(shunzi)
+            		 	}else{
+            		 		removePaimian(shunzi[0],3);
+            		 		removePaimian(shunzi[1],1);
+            		 		shunzi.splice(0,shunzi.length);
+            		 	}
+            	 }
+            	
+                
+            }
+            if (chupaiguize==7) {//三带一对出牌规则
+                shunzi.push(parseInt(cls));
+            	 if (shunzi.length==2) {
+            	  var sanzhang = $(".num"+shunzi[0]).length;
+            		var danzhang = $(".num"+shunzi[1]).length;
+            		 	if(sanzhang<3){
+		                tishi('你选择的'+shunzi[0]+"小于三张，请重新选择！");
+		                shunzi.splice(0,shunzi.length);
+            		 	}else if(danzhang<2){
+            		 		tishi('你选择的'+shunzi[1]+"数量不够，请重新选择！");
+//		                shunzi.splice(0,shunzi.length);
+		                shunzi.slice(0);
+ 										shunzi.splice(shunzi.length-1,1);
+										console.log(shunzi)
+            		 	}else{
+            		 		removePaimian(shunzi[0],3);
+            		 		removePaimian(shunzi[1],1);
+            		 		shunzi.splice(0,shunzi.length);
+            		 	}
+            	 }
+            }
+            if (chupaiguize==8) {//四带二出牌规则
+                 shunzi.push(parseInt(cls));
+            	 if (shunzi.length==3) {
+            	  var sizhang = $(".num"+shunzi[0]).length;
+            		var danzhang1 = $(".num"+shunzi[1]).length;
+            		var danzhang2 = $(".num"+shunzi[2]).length;
+            		 	if(sizhang<4){
+		                tishi('你选择的'+shunzi[0]+"小于四张，请重新选择！");
+		                shunzi.splice(0,shunzi.length);
+            		 	}else if(danzhang1<1){
+            		 		tishi('你选择的'+shunzi[1]+"数量不够，请重新选择！");
+//		                shunzi.splice(0,shunzi.length);
+		                shunzi.splice(0,shunzi.length);
+										console.log(shunzi)
+            		 	}else if(danzhang2<1){
+            		 		tishi('你选择的'+shunzi[2]+"数量不够，请重新选择！");
+//		                shunzi.splice(0,shunzi.length);
+		               shunzi.splice(0,shunzi.length);
+										console.log(shunzi)
+            		 	}else{
+            		 		removePaimian(shunzi[0],4);
+            		 		removePaimian(shunzi[1],1);
+            		 		removePaimian(shunzi[2],1);
+            		 		shunzi.splice(0,shunzi.length);
+            		 	}
+            	 }
+            }
+            if (chupaiguize==9) {//四代两队出牌规则
+                 shunzi.push(parseInt(cls));
+            	 if (shunzi.length==3) {
+            	  var sizhang = $(".num"+shunzi[0]).length;
+            		var danzhang1 = $(".num"+shunzi[1]).length;
+            		var danzhang2 = $(".num"+shunzi[2]).length;
+            		 	if(sizhang<4){
+		                tishi('你选择的'+shunzi[0]+"小于四张，请重新选择！");
+		                shunzi.splice(0,shunzi.length);
+            		 	}else if(danzhang1<2){
+            		 		tishi('你选择的'+shunzi[1]+"数量不够，请重新选择！");
+//		                shunzi.splice(0,shunzi.length);
+		                shunzi.splice(0,shunzi.length);
+										console.log(shunzi)
+            		 	}else if(danzhang2<2){
+            		 		tishi('你选择的'+shunzi[2]+"数量不够，请重新选择！");
+//		                shunzi.splice(0,shunzi.length);
+		               shunzi.splice(0,shunzi.length);
+										console.log(shunzi)
+            		 	}else{
+            		 		removePaimian(shunzi[0],4);
+            		 		removePaimian(shunzi[1],2);
+            		 		removePaimian(shunzi[2],2);
+            		 		shunzi.splice(0,shunzi.length);
+            		 	}
+            	 }
+            }
+            if (chupaiguize==10) {//三张啥不带出牌规则
+            	 var sum = $(".num"+cls).length;
+            	 if(sum<3){
+            	 	tishi('你选择的'+cls+"数量不够，请重新选择！");
+            	 }else{
+            	 	removePaimian(cls,3)//删除排面的方法
+                 shunzi.splice(0,shunzi.length);
+            	 }
+            	
+                 
+            }
+           
+
+        });
+
+    }
+
+    //已选
+    function yixuan(ids){
+             var html = "";
+             console.log('已选:'+ids);
+            for(var i=0;i<suoyoupaimian.length;i++){
+                var id = suoyoupaimian[i].id;
+                var num = suoyoupaimian[i].num;
+                for (var j = 0; j < ids.length; j++) {
+                     if (id==ids[j]) {
+                         html +='<div class="white sum'+num+' " data_num ="'+num+'">'+suoyoupaimian[i].name+ '</div></div>';
+                     }
+                }
+            }
+             $("#yixuan").append(html);
+             $("#paimian").empty();
+             paimian();
+             
+    }
+
+    //错误提示
+    function tishi(obj){
+        $('#errorHtml').text(obj)
+        $('#errorHtml').show().delay(1000).hide(300);
+    }
+  
+  
+
+        //清除牌面的方法
+        function removePaimian(obj,num){
+                        
+                        var sum = $(".num"+obj).length;
+                        var ids = new Array();
+                        
+                        if (sum>=num) {
+                                for(var i =0; i < num; i++){
+                                  // $(".num"+obj).eq(i).remove();
+                                  var id = $(".num"+obj).eq(i).attr('id');
+                                    console.log("xxx"+id);
+                                    // $("#"+id).remove();
+                                    ids.push(id);
+                            }
+                            removeId(ids);
+                            yixuan(ids);
+                        }else{
+                            tishi('出牌规则有误');
+                        }
+        }
+     
+        function removeId(ids){
+            for(var i =0; i < ids.length; i++){
+                console.log("xxx"+ids[i]);
+                $("#"+ids[i]).remove();
+                        
+            }
+            
+        }
+
+     //顺子出牌的方法
+     function removeshunzi(objs){
+                        var falg = true;
+                        var zhangshu = objs[0]-objs[1];
+                        if (zhangshu<4) {
+                              return false;
+                        }
+
+                            for(var i = objs[0]; i >= objs[1]; i--){
+                                console.log("shunzi:"+i);
+                                 var sum = $(".num"+i).length;
+                                 if (sum==0) {
+                                    falg = false;
+                                    break;
+                                 }
+                            }
+                      return falg;
+        }
+
+        //连队规则
+         function lianduiGuize(objs){
+                        var falg = true;
+                        var zhangshu = objs[0]-objs[1];
+                        if (zhangshu<2) {
+                              return false;
+                        }
+
+                            for(var i = objs[0]; i >= objs[1]; i--){
+                                console.log("shunzi:"+i);
+                                 var sum = $(".num"+i).length;
+                                 if (sum<2) {
+                                    falg = false;
+                                    break;
+                                 }
+                            }
+                      return falg;
+        }
+
+
+</script>

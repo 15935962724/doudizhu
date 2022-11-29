@@ -1,0 +1,250 @@
+<!doctype html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>斗地主</title>
+    <style type="text/css">
+        .pView{
+            height: 20px;
+    line-height: 30px;
+    padding: 0;
+    margin: 0;
+        }
+        .cardView{
+            font-size: 18px;
+            border-right: 1px solid red;
+            border-bottom: 1px solid red;
+            height: 200px;
+             width: 30px; 
+             float: left;
+             text-align:center;
+             line-height: 30px;
+        }
+        .white{
+            background-color: #fff
+        }
+        .pink{
+            background-color: pink
+        }
+    </style>
+    <script type="text/javascript" src="js/jquery-1.4.3.min.js"></script>
+</head>
+
+</head>
+
+<body>
+    <div style="height: 300px; border: 1px solid red;" id = "shang"> 
+        <div style="height: 300px; width: 90%; text-align: center; float: left;line-height: 300px;" id="postCardView" >
+                
+                
+        </div>
+         <div style="background-color: #cfa2e6;height: 300px; width: 10%; text-align: center;float: left;line-height: 300px;" >  
+                <button onclick="downCard(1)">回滚</button>
+                <button onclick="downCard(2)">下载</button>
+        </div> 
+    </div>
+    <div style="height: 300px; text-align: center; line-height: 300px;">
+        <div style="display: flex;flex-direction: column;height: 300px; width: 90%; text-align: center; float: left;" id = "zhongleft">
+           <div style="height: 200px;" id = "suoyoupai">
+               
+           </div>
+            <div style="height: 100px;" id = "shengyu">
+               <p class="pView">底牌剩余<d class="lengthCard">54</d>张</p>
+               <p class="pView">名牌剩余<d class="activeCard">0</d>张</p>
+               <p class="pView">选中<d class="activeLength">0</d>张</p>
+           </div>
+
+                
+        </div>
+         <div style="background-color: #929e2e;height: 300px; width: 10%; text-align: center;float: left;line-height: 300px;" id = "zhongright">  
+                <button onclick="postCard(1)">出牌</button>
+                <button onclick="postCard(2)">下载</button>
+
+        </div>    
+    </div>
+    
+
+    <div style="height: 300px; border: 1px solid #12e09d;" id = "xia">
+        <div style="display: flex;flex-direction: column;height: 300px; width: 90%; text-align: center; float: left;" id = "zhongleft">
+            <div style="height: 200px;" id = "bootomView">
+                
+                 
+        </div>
+            <div style="height: 100px;" id = "shengyu">
+               <p class="pView">底牌剩余<d class="lengthCard">54</d>张</p>
+               <p class="pView">选中<d class="activeLength">0</d>张</p>
+           </div>
+
+                
+        </div>
+         <div style="background-color: #a2e3e6;height: 300px; width: 10%; text-align: center;float: left;line-height: 300px;" id = "zhongright">  
+                <button onclick="toCard()">出牌</button>
+        </div> 
+
+    </div>
+
+
+</body>
+</html>
+
+
+
+<script type="text/javascript">
+    
+    $(function(){
+  fapai();
+  //牌面点击事件
+  $('.paimian').click(function(){
+        $(this).parent().addClass("intro");
+         $(this).removeClass('white').addClass('pink');
+         $(".activeLength").text($("#zhongleft .intro").length)
+
+    });
+  var num = 0;
+  $('.mingpai').click(function(){
+        $(this).addClass("ming pink");
+        num++;
+        $(".activeCard").text(num)
+    });
+
+});
+
+
+    //发牌的方法
+    function fapai(){
+        var html = "";
+       
+            var wang = new Array('大王','小王');
+            for(var i=0;i<wang.length;i++){
+                var color = randomColor1();
+                 html +='<div class="cardView"><button>出牌</button> <div class="paimian white" style="height: 100px">'+wang[i]+'</div> <button class="mingpai">名牌</button></div>';
+                
+                 }
+            var huase = new Array('黑桃','红桃','梅花','方片' );
+            var dianshu = new Array('2','A','K','Q','J','10','9','8','7','6','5','4','3');
+             for(var j=0;j<dianshu.length;j++){
+                var color = randomColor1();
+                for(var i=0;i<huase.length;i++){
+                    // console.log(huase[i]+dianshu[j]);
+                    html +='<div class="cardView"><button>出牌</button> <div class="paimian white" style="height: 100px">'+huase[i]+ '    '+dianshu[j]+ '</div> <button class="mingpai">名牌</button></div>';
+
+                   
+                 }
+                }
+             $("#suoyoupai").append(html);
+    }
+
+
+    function randomColor1(){
+            var r = Math.floor(Math.random()*256);
+            var g = Math.floor(Math.random()*256);
+            var b = Math.floor(Math.random()*256);
+             
+            if(r < 16){
+                r = "0"+r.toString(16);
+            }else{
+                r = r.toString(16);
+            }
+            if(g < 16){
+                g = "0"+g.toString(16);
+            }else{
+                g = g.toString(16);
+            }
+            if(b < 16){
+                b = "0"+b.toString(16);
+            }else{
+                b = b.toString(16);
+            }
+             
+            return "#"+r+g+b;
+        }
+
+function postCard(type){
+    var cardLength = $("#suoyoupai .intro").length;
+    for(var i = 0; i < cardLength; i++){
+        var html = $("#suoyoupai .intro").eq(i).html();
+        if(type == 1){
+            $("#postCardView").append('<div class="cardView" onclick="backCard(this)">'+html+'</div>');
+            $("#postCardView .paimian").removeClass('pink').addClass('white');
+
+        }else{
+            $("#bootomView").append('<div class="cardView" onclick="activeBottomCard(this)">'+html+'</div>');
+            $("#bootomView .paimian").removeClass('pink').addClass('white')
+
+        }
+    }
+    $("#suoyoupai .intro").remove();
+    if(type == 1){
+        $(".lengthCard").text($("#suoyoupai .paimian").length)
+        $(".activeCard").text($("#suoyoupai .ming").length)
+    }
+    if(type == 2){
+        $(".lengthCard").text($("#suoyoupai .paimian").length)
+        $(".activeCard").text($("#suoyoupai .ming").length)
+
+    }
+    $(".activeLength").text(0)
+
+}
+function activeBottomCard(obj){
+    $(obj).children('.paimian').removeClass('white').addClass('pink');
+    $(obj).addClass('intro');
+}
+
+function toCard(){
+    var cardLength = $("#bootomView .intro").length;
+    for(var i = 0; i < cardLength; i++){
+        var html = $("#bootomView .intro").eq(i).html();
+        $("#postCardView").append('<div class="cardView" onclick="activeBottomCard(this)">'+html+'</div>');
+            $("#postCardView .paimian").removeClass('pink').addClass('white')
+    }
+    $("#bootomView .intro").remove();
+}
+function backCard(obj){
+    $(obj).children('.paimian').removeClass('white').addClass('pink');
+    $(obj).addClass('intro');
+}
+
+
+
+
+
+function downCard(type){
+    var cardLength = $("#postCardView .intro").length;
+    for(var i = 0; i < cardLength; i++){
+        var html = $("#postCardView .intro").eq(i).html();
+        if(type == 1){
+            $("#suoyoupai").append('<div class="cardView">'+html+'</div>');
+            $("#suoyoupai .paimian").removeClass('pink').addClass('white');
+        }else{
+
+            $("#bootomView").append('<div class="cardView" onclick="backCard(this)">'+html+'</div>');
+            $("#bootomView .paimian").removeClass('pink').addClass('white')
+        }
+        
+    }
+    $("#postCardView .intro").remove();
+
+  $('.paimian').click(function(){
+         if ($('.cardView').is('.intro')) {
+            console.log('包含');
+         }
+         $(this).parent().addClass("intro");
+         $(this).removeClass('white').addClass('pink');
+    
+         $(".activeLength").text($("#zhongleft .intro").length)
+
+    });
+    if(type == 1){
+            $(".lengthCard").text($("#suoyoupai .paimian").length)
+    }
+}
+
+
+
+</script>
